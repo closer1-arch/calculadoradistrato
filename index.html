@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Calculadora de Distrato Imobiliário</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: rgba(128, 0, 32, 0.92); /* marsala */
+      padding: 20px;
+      position: relative;
+    }
+
+    /* MARCA D’ÁGUA POR CIMA */
+    body::after {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-image: url("./logo.png");
+      background-repeat: no-repeat;
+      background-position: center;
+      background-size: 45%; /* logo um pouco menor */
+      opacity: 0.08;        /* visível e discreta */
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .container {
+      max-width: 460px; /* DIMINUIU SÓ UM POUCO */
+      margin: auto;
+      background: rgba(255, 255, 255, 0.95);
+      padding: 22px;
+      border-radius: 10px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+      position: relative;
+      z-index: 2;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 18px;
+      color: #800020;
+    }
+
+    label {
+      display: block;
+      margin-top: 14px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 9px;
+      margin-top: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 18px;
+      padding: 11px;
+      background: #800020;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #660018;
+    }
+
+    .resultado {
+      margin-top: 22px;
+      background: #f1f3f5;
+      padding: 14px;
+      border-radius: 8px;
+    }
+
+    .resultado p {
+      margin: 7px 0;
+      font-weight: bold;
+    }
+
+    hr {
+      border: none;
+      border-top: 1px solid #ccc;
+      margin: 10px 0;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <h1>Calculadora de Distrato</h1>
+
+    <label>Valor total pago (R$)</label>
+    <input type="number" id="valorPago" placeholder="Ex: 138000" />
+
+    <label>Percentual que o cliente tem direito (%)</label>
+    <input type="number" id="percentual" value="90" />
+
+    <label>Taxa SELIC anual (%)</label>
+    <input type="number" id="selic" placeholder="Ex: 11.75" />
+
+    <label>Quantidade de meses</label>
+    <input type="number" id="meses" value="12" />
+
+    <label>Correção monetária estimada (%)</label>
+    <input type="number" id="correcao" placeholder="Ex: 4.5 (opcional)" />
+
+    <button onclick="calcular()">Calcular</button>
+
+    <div class="resultado" id="resultado" style="display:none"></div>
+  </div>
+
+  <script>
+    function formatar(valor) {
+      return valor.toLocaleString('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      });
+    }
+
+    function calcular() {
+      const valorPago = parseFloat(document.getElementById('valorPago').value);
+      const percentual = parseFloat(document.getElementById('percentual').value) / 100;
+      const selic = parseFloat(document.getElementById('selic').value) / 100;
+      const meses = parseInt(document.getElementById('meses').value);
+      const correcao = parseFloat(document.getElementById('correcao').value) / 100 || 0;
+
+      if (!valorPago || valorPago <= 0) {
+        alert('Informe um valor pago válido');
+        return;
+      }
+
+      if (!selic || selic <= 0) {
+        alert('Informe a taxa SELIC anual');
+        return;
+      }
+
+      const jurosPeriodo = selic * (meses / 12);
+
+      const valorBase = valorPago * percentual;
+      const valorJuros = valorBase * jurosPeriodo;
+      const valorCorrecao = valorBase * correcao;
+      const total = valorBase + valorJuros + valorCorrecao;
+
+      document.getElementById('resultado').style.display = 'block';
+      document.getElementById('resultado').innerHTML = `
+        <p>Valor base do distrato: ${formatar(valorBase)}</p>
+        <p>Juros pela SELIC: ${formatar(valorJuros)}</p>
+        <p>Correção monetária: ${formatar(valorCorrecao)}</p>
+        <hr>
+        <p>Total a receber (ESTIMATIVA): ${formatar(total)}</p>
+      `;
+    }
+  </script>
+
+</body>
+</html>
